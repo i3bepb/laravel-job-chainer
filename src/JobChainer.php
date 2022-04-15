@@ -2,6 +2,8 @@
 
 namespace JustIversen\JobChainer;
 
+use Illuminate\Contracts\Queue\ShouldQueue;
+
 class JobChainer
 {
     protected $jobs = [];
@@ -48,7 +50,11 @@ class JobChainer
         }
 
         $inside = array_map(function ($item) {
-            return new $item[0](...$item[1]);
+            if ($item[0] instanceof ShouldQueue) {
+                return $item[0];
+            } else {
+                return new $item[0](...$item[1]);
+            }
         }, array_slice($this->jobs, 1));
 
         $first = $this->jobs[0];
